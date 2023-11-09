@@ -1,11 +1,12 @@
 import torch
+from torch import nn
 import torchvision.transforms as T
 from torch.utils.data import DataLoader
-from torch import nn
-import aux
-import MLPClassifier as M
-
 from torchvision.datasets import CIFAR10
+import MLPClassifier as M
+import aux
+import seaborn as sn
+import matplotlib.pyplot as plt
 
 DATA_DIR = '/home/gercom2/Documentos/Redes Neurais/Teste com Flower/Rede Neural Convolucional/cifar-10-batches-py'
 CATEGORIES = ['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck']
@@ -57,3 +58,8 @@ for t in range(epochs):
     
 losses = {"Train loss": train_losses, "Test loss": test_losses}
 aux.plot_losses(losses)
+
+confusion_matrix = aux.evaluate_accuracy(model, test_loader, CATEGORIES)
+plt.figure(figsize=(12, 12))
+sn.set(font_scale=1.4)
+sn.heatmap(confusion_matrix.tolist(), annot=True, annot_kws={"size": 16}, fmt='d')
