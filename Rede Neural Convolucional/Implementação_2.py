@@ -9,6 +9,7 @@ from PIL import Image
 import os
 import seaborn as sn
 import matplotlib.pyplot as plt
+import pandas as pd
 
 DATA_DIR = '/home/gercom2/Documentos/Redes Neurais/Teste com Flower/Rede Neural Convolucional/cifar-10-batches-py'
 CATEGORIES = ['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck']
@@ -48,21 +49,21 @@ model = M.ConvolutionalModel().to(device)
 optmizer = torch.optim.SGD(model.parameters(), lr=1e-3)
 lossfunc = nn.CrossEntropyLoss()
 
-epochs = 31
+epochs = 41
 train_losses = []
 test_losses = []
 
 for t in range(epochs):
     train_loss = aux.train(model, train_loader, lossfunc, optmizer)
     train_losses.append(train_loss)
-    if t % 5 == 0:
+    if t % 2 == 0:
         print(f"Epoch {t} - Loss: {train_loss:.4f}")
     test_loss = aux.test(model, test_loader, lossfunc)
     test_losses.append(test_loss)
     
-conv_confusion_matrix = aux.evaluate_accuracy(model, test_loader, CATEGORIES)
+'''conv_confusion_matrix = aux.evaluate_accuracy(model, test_loader, CATEGORIES)
 
-#img_passaro = Image.open('passaro.jpeg')
+img_passaro = Image.open(get_path('passaro.jpeg'))
 img_carro = Image.open(get_path("carro.jpg"))
 
 prep_transform = T.Compose(
@@ -76,7 +77,7 @@ prep_transform = T.Compose(
     ]
 )
 
-img_tensor = prep_transform(img_carro)
+img_tensor = prep_transform(img_passaro)
 
 plt.imshow(img_tensor.permute(1,2,0))
 
@@ -90,3 +91,8 @@ for i, classname in enumerate(CATEGORIES):
     prob = probs[0][i].item()
     print(f"{classname} probabilidade: {prob:.2f}")
     prob_dict[classname] = [prob]
+    
+df_prob = pd.DataFrame.from_dict(prob_dict)
+df_prob.plot(kind='bar', figsize=(10, 6))'''
+
+torch.save(model.state_dict(), '/home/gercom2/Documentos/Redes Neurais/Teste com Flower/Rede Neural Convolucional/model.pth')
