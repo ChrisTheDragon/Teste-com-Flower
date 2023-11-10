@@ -1,98 +1,67 @@
+import os
 import torch
-from torch import nn
 import torchvision.transforms as T
+from torch import nn
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
 import Redes_Neurais as M
 import aux
-from PIL import Image
-import os
-import seaborn as sn
-import matplotlib.pyplot as plt
-import pandas as pd
+
 
 DATA_DIR = '/home/gercom2/Documentos/Redes Neurais/Teste com Flower/Rede Neural Convolucional/cifar-10-batches-py'
-CATEGORIES = ['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck']
+CATEGORIES = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+
 
 def get_path(relpath):
-  return os.path.join('/home/gercom2/Documentos/Redes Neurais/Teste com Flower/Rede Neural Convolucional', relpath)
+    return os.path.join('/home/gercom2/Documentos/Redes Neurais/Teste com Flower/Rede Neural Convolucional', relpath)
 
-cifar10_train = CIFAR10(DATA_DIR, train=True, download=True)
-cifar10_test = CIFAR10(DATA_DIR, train=False, download=True)
 
-#aux.lookat_dataset(cifar10_train)
+def main():
+    # Define a transformação que será aplicada nas imagens
+    prep_transform = T.Compose(
+        [
+            T.ToTensor(),
+            T.Normalize(
+                (0.4914, 0.4822, 0.4465),  # img_mean
+                (0.2470, 0.2435, 0.2616)  # img_std
+            )
+        ]
+    )
 
-prep_transform = T.Compose(
-    [
-        T.ToTensor(),
-        T.Normalize(
-            (0.4914, 0.4822, 0.4465), #img_mean
-            (0.2470, 0.2435, 0.2616)  #img_std
-        ) 
-    ]
-)
+    # Carrega os dados de treino e teste
+    tensor_train = CIFAR10(DATA_DIR, train=True, download=False, transform=prep_transform)
+    tensor_test = CIFAR10(DATA_DIR, train=False, download=False, transform=prep_transform)
 
-tensor_train = CIFAR10(DATA_DIR, train=True, download=False, transform=prep_transform)
-tensor_test = CIFAR10(DATA_DIR, train=False, download=False, transform=prep_transform)
+    # Define o tamanho do batch e cria os dataloaders
+    batch_size = 64
+    train_loader = DataLoader(tensor_train, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(tensor_test, batch_size=batch_size, shuffle=False)
 
-imgs = torch.stack([img for img, _ in tensor_train], dim=3)
-#imgs_mean = imgs.view(3, -1).mean(dim=1)
-#imgs_std = imgs.view(3, -1).std(dim=1)
+    # Verifica se há GPU disponível
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-batch_size = 64
-train_loader = DataLoader(tensor_train, batch_size=batch_size, shuffle=True)
-test_loader = DataLoader(tensor_test, batch_size=batch_size, shuffle=False)
+    # Define o modelo, otimizador e função de perda
+    model = M.ConvolutionalModel().to(device)
+    optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+    loss_func = nn.CrossEntropyLoss()
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # Define o número de épocas e as listas para armazenar as perdas de treino e teste
+    epochs = 41
+    train_losses = []
+    test_losses = []
 
-model = M.ConvolutionalModel().to(device)
-optmizer = torch.optim.SGD(model.parameters(), lr=1e-3)
-lossfunc = nn.CrossEntropyLoss()
+    # Treina o modelo
+    for t in range(epochs):
+        train_loss = aux.train(model, train_loader, loss_func, optimizer)
+        train_losses.append(train_loss)
+        if t % 2 == 0:
+            print(f"Epoch {t} - Loss: {train_loss:.4f}")
+        test_loss = aux.test(model, test_loader, loss_func)
+        test_losses.append(test_loss)
 
-epochs = 41
-train_losses = []
-test_losses = []
+    # Salva os pesos do modelo treinado
+    torch.save(model.state_dict(), '/home/gercom2/Documentos/Redes Neurais/Teste com Flower/Rede Neural Convolucional/model.pth')
 
-for t in range(epochs):
-    train_loss = aux.train(model, train_loader, lossfunc, optmizer)
-    train_losses.append(train_loss)
-    if t % 2 == 0:
-        print(f"Epoch {t} - Loss: {train_loss:.4f}")
-    test_loss = aux.test(model, test_loader, lossfunc)
-    test_losses.append(test_loss)
-    
-'''conv_confusion_matrix = aux.evaluate_accuracy(model, test_loader, CATEGORIES)
 
-img_passaro = Image.open(get_path('passaro.jpeg'))
-img_carro = Image.open(get_path("carro.jpg"))
-
-prep_transform = T.Compose(
-    [
-        T.Resize((32, 32)),
-        T.ToTensor(),
-        T.Normalize(
-            (0.4914, 0.4822, 0.4465), #img_mean
-            (0.2470, 0.2435, 0.2616)  #img_std
-        ) 
-    ]
-)
-
-img_tensor = prep_transform(img_passaro)
-
-plt.imshow(img_tensor.permute(1,2,0))
-
-batch = img_tensor.unsqueeze(0).to(device)
-
-output = model(batch)
-
-probs = torch.nn.functional.softmax(output, dim=1) *100
-prob_dict = {}
-for i, classname in enumerate(CATEGORIES):
-    prob = probs[0][i].item()
-    print(f"{classname} probabilidade: {prob:.2f}")
-    prob_dict[classname] = [prob]
-    
-df_prob = pd.DataFrame.from_dict(prob_dict)
-df_prob.plot(kind='bar', figsize=(10, 6))'''
-
-torch.save(model.state_dict(), '/home/gercom2/Documentos/Redes Neurais/Teste com Flower/Rede Neural Convolucional/model.pth')
+if __name__ == '__main__':
+    main()
