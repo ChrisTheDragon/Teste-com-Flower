@@ -27732,3 +27732,12 @@ Rede Neural Convolucional/cifar-10-batches-py/cifar-10-batches-py/data_batch_5
 Rede Neural Convolucional/cifar-10-batches-py/cifar-10-batches-py/readme.html
 Rede Neural Convolucional/cifar-10-batches-py/cifar-10-batches-py/test_batch
 Rede Neural Convolucional/__pycache__/Redes_Neurais.cpython-311.pyc
+data/cifar-10-python.tar.gz
+data/cifar-10-batches-py/batches.meta
+data/cifar-10-batches-py/data_batch_1
+data/cifar-10-batches-py/data_batch_2
+data/cifar-10-batches-py/data_batch_3
+data/cifar-10-batches-py/data_batch_4
+data/cifar-10-batches-py/data_batch_5
+data/cifar-10-batches-py/readme.html
+data/cifar-10-batches-py/test_batch
