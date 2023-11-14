@@ -81,4 +81,4 @@ if __name__ == '__main__':
     model = load_model()
     train(model, trainloader, 5)
     perda, acuracia = test(model, testloader)
-    print(f"Loss: {perda:.5f} - Acc: {acuracia:.3f}")
+    print(f"Perda: {perda:.5f} - Acc: {acuracia:.3f}")
