@@ -73,7 +73,7 @@ def load_model_from_file(file_path):
 # Exemplo de uso
 if __name__ == '__main__':
     # Substitua 'caminho/para/sua/imagem.jpg' pelo caminho real da sua imagem
-    image_path = '/home/gercom2/Documentos/Redes Neurais/Teste com Flower/Rede Neural Com Flower/Imagens/passaro.jpeg'
+    image_path = '/home/gercom2/Documentos/Redes Neurais/Teste com Flower/Rede Neural Com Flower/Imagens/veado.jpg'
     
     # Carregar modelo treinado
     trained_model = load_model_from_file("modelo_treinado.pth")
