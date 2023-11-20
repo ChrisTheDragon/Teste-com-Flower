@@ -9,6 +9,9 @@ fl.server.start_server(
     server_address="[::]:8080",
     config=fl.server.ServerConfig(num_rounds=3),
     strategy=fl.server.strategy.FedAvg(
+        min_fit_clients=3,
+        min_available_clients=3,
+        min_evaluate_clients=3,
         evaluate_metrics_aggregation_fn=weighted_average
         ),
 )
