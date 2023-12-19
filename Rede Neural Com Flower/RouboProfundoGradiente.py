@@ -1,6 +1,9 @@
 import torch
 import torch.nn.functional as F
+from torchvision import transforms
+tt = transforms.ToPILImage()
 
+DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def label_to_onehot(target, num_classes=100):
     target = torch.unsqueeze(target, 1)
@@ -11,10 +14,16 @@ def label_to_onehot(target, num_classes=100):
 def cross_entropy_for_onehot(pred, target):
     return torch.mean(torch.sum(- target * F.log_softmax(pred, dim=-1), 1))
 
-def deep_leakage_from_gradients(model, origin_grad): 
+
+criterion = cross_entropy_for_onehot
+
+
+def deep_leakage_from_gradients(model, origin_grad, origin_data): 
   dummy_data = torch.randn(origin_data.size())
   dummy_label =  torch.randn(dummy_label.size())
   optimizer = torch.optim.LBFGS([dummy_data, dummy_label] )
+
+  history = []
 
   for iters in range(300):
     def closure():
@@ -31,6 +40,9 @@ def deep_leakage_from_gradients(model, origin_grad):
     
     optimizer.step(closure)
     
+    if iters % 10 == 0: 
+        current_loss = closure()
+        print(iters, "%.4f" % current_loss.item())
+    history.append(tt(dummy_data[0].cpu()))
+    
   return  dummy_data, dummy_label
-
-criterion = cross_entropy_for_onehot

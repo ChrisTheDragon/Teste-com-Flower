@@ -2,13 +2,13 @@ import torch
 from centralizado import load_model
 from PIL import Image
 from torchvision import transforms
+import RouboProfundoGradiente as rpg
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 CLASSES = ['aviao', 'carro', 'passaro', 'gato', 'veado', 'cachorro', 'sapo', 'cavalo', 'navio', 'caminhao']
 
 # Função para carregar e processar uma única imagem
 def process_image(image_path):
-    # Carregar a imagem usando a PIL
     image = Image.open(image_path).convert("RGB")
     
     # Aplicar transformações
@@ -21,19 +21,15 @@ def process_image(image_path):
         )
     ])
     
-    # Aplicar transformações à imagem
     image = prep_transform(image).unsqueeze(0)  # Adicionar dimensão do lote (batch dimension)
     
     return image
 
 # Função para realizar a predição usando o modelo treinado
 def predict_image(model, image_path):
-    model.eval()  # Modo de avaliação
-    
-    # Processar a imagem
+    model.eval()
+
     input_image = process_image(image_path)
-    
-    # Enviar a imagem para o dispositivo (CPU ou GPU)
     input_image = input_image.to(DEVICE)
     
     # Fazer a predição
@@ -46,12 +42,9 @@ def predict_image(model, image_path):
     return predicted_class.item()
 
 def predict_prob(model, image_path):
-    model.eval()  # Modo de avaliação
-    
-    # Processar a imagem
+    model.eval()
+
     input_image = process_image(image_path)
-    
-    # Enviar a imagem para o dispositivo (CPU ou GPU)
     input_image = input_image.to(DEVICE)
     
     output = model(input_image)
@@ -62,7 +55,6 @@ def predict_prob(model, image_path):
         prob = probs[0][i].item()
         print(f"{classname} probabilidade: {prob:.2f}")
         prob_dict[classname] = [prob]
-    
 
 # Função para carregar o modelo a partir de um arquivo
 def load_model_from_file(file_path):
@@ -88,7 +80,3 @@ if __name__ == '__main__':
     else:
         print('Opção inválida!')
     
-    #predicted_class = predict_image(trained_model, image_path)
-    #predicted_class = predict_prob(trained_model, image_path)
-    
-    #print(f"A imagem é da classe: {CLASSES[predicted_class]}")
