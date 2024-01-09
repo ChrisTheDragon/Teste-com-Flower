@@ -62,6 +62,7 @@ def load_model_from_file(file_path):
     modelo.load_state_dict(torch.load(file_path))
     return modelo
 
+
 # Exemplo de uso
 if __name__ == '__main__':
     # Substitua 'caminho/para/sua/imagem.jpg' pelo caminho real da sua imagem
